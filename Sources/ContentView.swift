@@ -6,7 +6,12 @@ struct ContentView: View {
     @AppStorage("enableNotifications") private var enableNotifications = true
     @AppStorage("selectedTheme") private var selectedTheme = "light"
     @AppStorage("volume") private var volume = 50
-    @AppStorage("lastVisit") private var lastVisit = Date.distantPast
+    /// UserDefaults 存的是时间戳（秒），避免依赖 macOS 15 的 Date @AppStorage
+    @AppStorage("lastVisit") private var lastVisitTimestamp: Double = 0
+
+    private var lastVisit: Date {
+        lastVisitTimestamp <= 0 ? Date.distantPast : Date(timeIntervalSince1970: lastVisitTimestamp)
+    }
 
     var body: some View {
         Form {
@@ -62,7 +67,7 @@ struct ContentView: View {
         .formStyle(.grouped)
         .padding()
         .onAppear {
-            lastVisit = Date()
+            lastVisitTimestamp = Date().timeIntervalSince1970
         }
     }
 
